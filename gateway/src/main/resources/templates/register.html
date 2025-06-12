@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+  <head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles2.css}" />
+    <title>Registration</title>
+  </head>
+  <body>
+    <header class="logo-container">
+      <img src="/images/Matchify-logo.png" class="logo" alt="Matchify logo"/>
+    </header>
+
+    <h3>User Registration</h3>
+
+    <form id="registrationForm" th:action="@{/register}" method="post" th:object="${user}" enctype="multipart/form-data">
+      <div th:if="${error}" style="color:red; ">
+        <p th:text="${error}"></p>
+      </div>
+      <div id="errorInfo" style="color:red; ">
+        <p></p>
+      </div>
+
+      <div class="form-photo-container">
+
+        <div>
+          <div>Profile Picture (max 1MB): </div>
+          <label for="userPhoto">
+            <input type="file" id="userPhoto" name="userPhoto" accept="image/*">
+          </label>
+          <p>
+          <div class="photo">
+            <img id="preview"
+                 th:src="${photoBase64} != null ? 'data:image/*;base64, ' + ${photoBase64} : '/images/nophoto.png' "
+                 height="100px" width="auto" alt="User photo" />
+          </div>
+        </div>
+
+        <div>
+          <div>Login: </div>
+          <input type="text" name="login"
+                 placeholder="Your login should be unique" th:field="*{login}"
+                 required pattern=".*\S.*" />
+
+          <div>Password: </div>
+          <input type="password" name="password" th:field="*{password}" required/>
+
+          <div>Confirm your password: </div>
+          <input type="password" name="confirm" />
+
+          <div>Name: </div>
+          <label for="name">
+            <input type="text" id="name" th:field="*{name}" required>
+          </label>
+
+          <div>Birth year: </div>
+          <label for="birthYear">
+            <input type="number" id="birthYear" th:field="*{birthYear}" required>
+          </label>
+
+          <div>Location: </div>
+          <label for="location">
+            <input type="text" id="location" th:field="*{location}" required>
+          </label>
+        </div>
+
+      </div>
+
+      <h3>Choose the interests that are closest to you. No more than three in one category.</h3>
+
+      <div class="category-container">
+        <div class="category-group" th:each="category : ${categoryMap.keySet()}">
+          <h4 th:text="${category.description}"></h4>
+          <div th:each="interest : ${categoryMap.get(category)}">
+            <label>
+              <input type="checkbox" th:id="${interest.name}"
+                       th:field="*{interests}" th:value="${interest.name}">
+              <span th:text="${interest.description}">Interest</span>
+            </label> <br>
+          </div>
+        </div>
+      </div>
+
+      <br>
+      <button type="submit">Register</button>
+    </form>
+
+    <script>
+      const MAX_FILE_SIZE = 1024*1024; // 1MB
+      const userPhotoInput = document.getElementById('userPhoto');
+      const preview = document.getElementById('preview');
+      const errorDiv = document.getElementById('errorInfo');
+      const errorParagraph = errorDiv.querySelector('p');
+      const DEFAULT_PHOTO_SRC = "/images/nophoto.png";
+
+      function showFileError(message) {
+        errorParagraph.textContent = message;
+        errorDiv.style.display = 'block';
+      }
+
+      userPhotoInput.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+
+        if (file) {
+          if (!file.type.startsWith("image/")) {
+            showFileError("File must be an image!");
+            userPhotoInput.value = null;
+            preview.src = DEFAULT_PHOTO_SRC;
+            return;
+          }
+
+          if (file.size > MAX_FILE_SIZE) {
+            showFileError("Photo must be smaller than 1MB!");
+            userPhotoInput.value = null;
+            preview.src = DEFAULT_PHOTO_SRC;
+            return;
+          }
+
+          preview.src = URL.createObjectURL(file);
+          preview.style.display = 'block';
+          errorDiv.style.display = 'none';
+
+        } else {
+          preview.src = DEFAULT_PHOTO_SRC;
+          preview.style.display = 'block';
+        }
+      });
+
+    </script>
+
+  </body>
+</html>

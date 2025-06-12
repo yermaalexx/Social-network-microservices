@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:social-network
+    driverClassName: "org.h2.Driver"
+    username: ${DB_H2_USER:h2}
+    password: ${DB_H2_PASS:pass}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  h2:
+    console:
+      enabled: true
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-cache: true
