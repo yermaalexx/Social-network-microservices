@@ -1,7 +1,7 @@
-package com.yermaalexx.gateway.service;
+package com.yermaalexx.usersservice.service;
 
-import com.yermaalexx.gateway.model.UserPhoto;
-import com.yermaalexx.gateway.repository.PhotoRepository;
+import com.yermaalexx.usersservice.model.UserPhoto;
+import com.yermaalexx.usersservice.repository.PhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -14,13 +14,13 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PhotoServiceCache {
+public class PhotoService {
 
     private final PhotoRepository photoRepository;
 
     @Cacheable(value = "photos", key = "#id")
     public UserPhoto getPhoto(UUID id) {
-        log.info("Fetching photo from DB for userId={}", id);
+        log.info("Fetching photo from DB for userId = {}", id);
         return photoRepository.findById(id).orElse(null);
     }
 

@@ -31,7 +31,7 @@
           <p>
           <div class="photo">
             <img id="preview"
-                 th:src="${photoBase64} != null ? 'data:image/*;base64, ' + ${photoBase64} : '/images/nophoto.png' "
+                 th:src="*{photoBase64} ? 'data:image/*;base64, ' + *{photoBase64} : '/images/nophoto.png' "
                  height="100px" width="auto" alt="User photo" />
           </div>
         </div>
@@ -74,7 +74,7 @@
           <div th:each="interest : ${categoryMap.get(category)}">
             <label>
               <input type="checkbox" th:id="${interest.name}"
-                       th:field="*{interests}" th:value="${interest.name}">
+                       th:field="*{matchingInterests}" th:value="${interest.name}">
               <span th:text="${interest.description}">Interest</span>
             </label> <br>
           </div>

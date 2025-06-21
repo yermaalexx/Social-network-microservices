@@ -1,7 +1,7 @@
 package com.yermaalexx.gateway.security;
 
 import com.yermaalexx.gateway.model.UserLogin;
-import com.yermaalexx.gateway.repository.UserLoginRepository;
+import com.yermaalexx.gateway.repository.LoginRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,9 +22,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(UserLoginRepository userLoginRepository) {
+    public UserDetailsService userDetailsService(LoginRepository loginRepository) {
         return login -> {
-            UserLogin userLogin = userLoginRepository.findByLogin(login);
+            UserLogin userLogin = loginRepository.findByLogin(login);
             if (userLogin != null)
                 return userLogin;
             throw new UsernameNotFoundException("Login '" + login + "' not found");

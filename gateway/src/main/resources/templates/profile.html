@@ -33,7 +33,7 @@
           <br>
           <div class="photo">
             <img id="preview"
-                 th:src="*{photoBase64} ? 'data:image/*;base64, ' + *{getPhotoBase64} : '/images/nophoto.png' "
+                 th:src="*{photoBase64} ? 'data:image/*;base64, ' + *{photoBase64} : '/images/nophoto.png' "
                  height="100px" width="auto" alt="Preview" />
           </div>
           <button type="button" id="removePhotoBtn" >Remove photo</button>

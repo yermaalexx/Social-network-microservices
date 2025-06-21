@@ -2,7 +2,7 @@ package com.yermaalexx.gateway.controller;
 
 import com.yermaalexx.gateway.model.Chat;
 import com.yermaalexx.gateway.model.Message;
-import com.yermaalexx.gateway.model.UserDTO;
+import com.yermaalexx.gateway.model.User;
 import com.yermaalexx.gateway.model.UserLogin;
 import com.yermaalexx.gateway.service.ChatService;
 import com.yermaalexx.gateway.service.NewMessageService;
@@ -51,8 +51,8 @@ public class ChatController {
             log.debug("Removed user {} from newMsg list for user {}", otherId, userId);
         }
 
-        UserDTO user = userService.getUserProfile(userId);
-        UserDTO other = userService.getUserProfile(otherId);
+        User user = userService.getUserProfile(userId);
+        User other = userService.getUserProfile(otherId);
         model.addAttribute("user", user);
         model.addAttribute("other", other);
         model.addAttribute("year", Calendar.getInstance().get(Calendar.YEAR));

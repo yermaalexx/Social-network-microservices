@@ -87,7 +87,7 @@
 
     <div class="chat-grid">
       <div class="profile" th:fragment="userProfile">
-        <img th:src="${user.getPhotoBase64} ? 'data:image/*;base64, ' + ${user.getPhotoBase64} : '/images/nophoto.png'"
+        <img th:src="${user.photoBase64} ? 'data:image/*;base64, ' + ${user.photoBase64} : '/images/nophoto.png'"
              alt="User photo" />
         <div>
           <h3>You: </h3>
@@ -99,7 +99,7 @@
         </div>
       </div>
       <div class="profile" th:fragment="otherProfile">
-        <img th:src="${other.getPhotoBase64} ? 'data:image/*;base64, ' + ${other.getPhotoBase64} : '/images/nophoto.png'"
+        <img th:src="${other.photoBase64} ? 'data:image/*;base64, ' + ${other.photoBase64} : '/images/nophoto.png'"
              alt="Other photo" />
         <div>
           <h3>Your interlocutor: </h3>
@@ -115,7 +115,7 @@
     <div class="chat-grid">
       <!-- 3. Повідомлення: кожен msg дає два .slot -->
       <th:block th:each="msg : ${messages}">
-        <!-- ліва клітинка: тільки якщо msg від user -->
+        <!-- ліва клітинка: тільки якщо msg від userold -->
         <div class="slot">
           <div th:if="${msg.senderId.equals(user.id)}"
                class="message from-me">

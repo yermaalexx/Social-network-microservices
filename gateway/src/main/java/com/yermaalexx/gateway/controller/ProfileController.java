@@ -2,7 +2,7 @@ package com.yermaalexx.gateway.controller;
 
 import com.yermaalexx.gateway.model.Interest;
 import com.yermaalexx.gateway.model.InterestCategory;
-import com.yermaalexx.gateway.model.UserDTO;
+import com.yermaalexx.gateway.model.User;
 import com.yermaalexx.gateway.model.UserLogin;
 import com.yermaalexx.gateway.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -39,14 +39,14 @@ public class ProfileController {
         UUID userId = userLogin.getUserId();
         log.info("User {} accessed profile page", userId);
 
-        UserDTO userAfter = userService.getUserProfile(userId);
+        User userAfter = userService.getUserProfile(userId);
         model.addAttribute("userAfter", userAfter);
 
         return "profile";
     }
 
     @PostMapping
-    public String saveProfile(@ModelAttribute("userAfter") UserDTO userAfter,
+    public String saveProfile(@ModelAttribute("userAfter") User userAfter,
                               @RequestParam(value = "userPhoto", required = false) MultipartFile userPhoto,
                               @RequestParam(value = "removePhoto", required = false) String removePhoto,
                               Model model,

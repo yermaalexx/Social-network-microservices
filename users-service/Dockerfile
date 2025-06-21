@@ -28,7 +28,7 @@ COPY --from=builder /workspace/application/ ./application
 COPY --from=builder /workspace/application.jar ./application.jar
 
 # Виставляємо порт
-EXPOSE 8080
+EXPOSE 8081
 
 # Запуск
 ENTRYPOINT ["java","-jar","application.jar"]

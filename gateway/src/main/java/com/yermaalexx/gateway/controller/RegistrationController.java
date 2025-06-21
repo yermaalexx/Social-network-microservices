@@ -25,7 +25,6 @@ public class RegistrationController {
 
     private final UserService userService;
     private final UserLoginService userLoginService;
-    private byte[] photoBytes;
 
     @ModelAttribute
     public void addInterestsToModel(Model model) {
@@ -51,40 +50,32 @@ public class RegistrationController {
 
         try {
             if(userPhoto!=null && !userPhoto.isEmpty()) {
-                photoBytes = userPhoto.getBytes();
+                byte[] photoBytes = userPhoto.getBytes();
+                user.setPhotoBase64(Base64.getEncoder().encodeToString(photoBytes));
                 log.debug("Uploaded photo received: size={} Kb", photoBytes.length/1024);
-                model.addAttribute("photoBase64", Base64.getEncoder().encodeToString(photoBytes));
             }
         } catch (IOException e) {
             log.error("Failed to read uploaded photo for login={}: {}", user.getLogin(), e.getMessage());
             model.addAttribute("error", "Error reading uploaded file.");
-            if (photoBytes != null)
-                model.addAttribute("photoBase64", Base64.getEncoder().encodeToString(photoBytes));
             return "register";
         }
 
         if (userLoginService.existsByLogin(user.getLogin())) {
             log.warn("Attempt to register with already existing login: {}", user.getLogin());
             model.addAttribute("error", "A user with this login already exists");
-            if (photoBytes != null)
-                model.addAttribute("photoBase64", Base64.getEncoder().encodeToString(photoBytes));
             return "register";
         }
 
         if (user.getBirthYear() < 1900 || user.getBirthYear() > 2020) {
             log.warn("Invalid birth year provided: {}", user.getBirthYear());
             model.addAttribute("error", "Year of birth must be between 1900 and 2020");
-            if (photoBytes != null)
-                model.addAttribute("photoBase64", Base64.getEncoder().encodeToString(photoBytes));
             return "register";
         }
 
-        List<String> selectedInterests = user.getInterests();
+        List<String> selectedInterests = user.getMatchingInterests();
         if (selectedInterests.isEmpty()) {
             log.warn("Registration attempt without selected interests for login={}", user.getLogin());
             model.addAttribute("error", "You must choose at least one interest");
-            if (photoBytes != null)
-                model.addAttribute("photoBase64", Base64.getEncoder().encodeToString(photoBytes));
             return "register";
         }
         for(InterestCategory category : InterestCategory.values()) {
@@ -96,8 +87,6 @@ public class RegistrationController {
                 log.warn("For login={} too many interests from category {}: {} selected (limit 3)",
                         user.getLogin(), category.name(), count);
                 model.addAttribute("error", "Cannot select more than 3 interests from " + category.getDescription());
-                if (photoBytes != null)
-                    model.addAttribute("photoBase64", Base64.getEncoder().encodeToString(photoBytes));
                 return "register";
             }
         }
@@ -105,12 +94,10 @@ public class RegistrationController {
         if (!user.getPassword().equals(confirm)) {
             log.warn("Password confirmation mismatch for login={}", user.getLogin());
             model.addAttribute("error", "Fields 'Password' and 'Confirm password' are not the same");
-            if (photoBytes != null)
-                model.addAttribute("photoBase64", Base64.getEncoder().encodeToString(photoBytes));
             return "register";
         }
 
-        User savedUser = userService.saveNewUser(user, photoBytes);
+        User savedUser = userService.saveNewUser(user);
         log.info("User successfully registered: id={}, login={}", savedUser.getId(), savedUser.getLogin());
 
         return "redirect:/login";

@@ -1,6 +1,6 @@
-package com.yermaalexx.gateway.repository;
+package com.yermaalexx.usersservice.repository;
 
-import com.yermaalexx.gateway.model.User;
+import com.yermaalexx.usersservice.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,4 +29,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
         where u.id = :id
     """)
     Optional<User> findById(@Param("id") UUID id);
+
+    @Query("SELECT i FROM User u JOIN u.interests i WHERE u.id = :userId")
+    List<String> findInterestsByUserId(@Param("userId") UUID userId);
 }

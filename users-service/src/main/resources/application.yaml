@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: users-service
+  jpa:
+    open-in-view: true
+    show-sql: true
+  profiles:
+    default: h2
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ""
+      timeout: 60000ms
+  cache:
+    type: redis
+
+server:
+  port: 8081

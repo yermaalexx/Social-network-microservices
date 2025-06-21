@@ -1,47 +1,46 @@
 package com.yermaalexx.gateway.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
+import com.yermaalexx.gateway.dto.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
-@Entity
-@Table(name = "users")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
+@NoArgsConstructor
 public class User {
-    @Id
-    @GeneratedValue
-    @Column(columnDefinition = "uuid")
-    @JsonAlias("userId")
     private UUID id;
-
     private String name;
-
-    @Transient
     private String login;
-
-    @Transient
     private String password;
-
     private int birthYear;
-
     private String location;
-
     private LocalDate registrationDate;
+    private String photoBase64;
+    private List<String> matchingInterests;
+    private List<String> otherInterests;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_interests", joinColumns = @JoinColumn(name = "user_id",
-    referencedColumnName = "id", columnDefinition = "uuid"))
-    @Column(name = "interest")
-    private List<String> interests = new ArrayList<>();
+    public static User from(UserDTO dto, List<String> common, List<String> other) {
+        if (dto == null)
+            return null;
+        String photoBase64 = (dto.getUserPhoto() == null) ? null : Base64.getEncoder().encodeToString(dto.getUserPhoto());
+        if (common == null)
+            common = dto.getInterests();
+        return new User(
+                dto.getId(),
+                dto.getName(),
+                null,
+                null,
+                dto.getBirthYear(),
+                dto.getLocation(),
+                dto.getRegistrationDate(),
+                photoBase64,
+                common,
+                other);
+    }
 }

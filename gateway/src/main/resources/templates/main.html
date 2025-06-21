@@ -54,7 +54,7 @@
       <h2>Your profile: </h2>
       <div class="profile-card">
         <div class="photo">
-          <img th:src="${user.getPhotoBase64} ? 'data:image/*;base64, ' + ${user.getPhotoBase64} : '/images/nophoto.png'"
+          <img th:src="${user.photoBase64} ? 'data:image/*;base64, ' + ${user.photoBase64} : '/images/nophoto.png'"
                alt="User photo" width="150"/>
           <p></p>
         </div>

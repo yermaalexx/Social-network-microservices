@@ -7,7 +7,7 @@ server:
 
 spring:
   application:
-    name: social-network
+    name: gateway
   jpa:
     open-in-view: true
     show-sql: true
@@ -17,14 +17,13 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 10MB
-
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ""
-      timeout: 60000ms
-  cache:
-    type: redis
-
-
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            users-service:
+              - uri: http://${USERS_SERVICE_HOST:localhost}:${USERS_SERVICE_PORT:8081}
+    loadbalancer:
+      ribbon:
+        enabled: false

@@ -1,7 +1,7 @@
 package com.yermaalexx.gateway.controller;
 
 import com.yermaalexx.gateway.config.AppConfig;
-import com.yermaalexx.gateway.model.UserDTO;
+import com.yermaalexx.gateway.model.User;
 import com.yermaalexx.gateway.model.UserLogin;
 import com.yermaalexx.gateway.service.RejectService;
 import com.yermaalexx.gateway.service.UserService;
@@ -38,7 +38,7 @@ public class MainPageController {
         UUID userId = userLogin.getUserId();
         log.info("User {} accessed main page", userId);
 
-        UserDTO user = userService.getUserProfile(userId);
+        User user = userService.getUserProfile(userId);
         model.addAttribute("user", user);
 
         if(session.getAttribute("matchIds") == null) {
@@ -59,15 +59,15 @@ public class MainPageController {
 
         List<UUID> start = ids.stream().limit(appConfig.getCardsOnPage()).toList();
 
-        List<UserDTO> dtos = userService.getUserMatchedDTOs(start, userId);
+        List<User> users = userService.getMatchedUsers(start, userId);
 
-        model.addAttribute("matches", dtos);
+        model.addAttribute("matches", users);
         model.addAttribute("newMessage", newMessage);
         model.addAttribute("userId", userId);
-        model.addAttribute("offset", dtos.size());
+        model.addAttribute("offset", users.size());
         model.addAttribute("year", Calendar.getInstance().get(Calendar.YEAR));
 
-        log.debug("Loaded {} user cards for user {}", dtos.size(), userId);
+        log.debug("Loaded {} user cards for user {}", users.size(), userId);
         return "main";
     }
 
@@ -82,7 +82,7 @@ public class MainPageController {
 
     @GetMapping("/more")
     @ResponseBody
-    public List<UserDTO> loadMore(
+    public List<User> loadMore(
             @RequestParam UUID userId,
             @RequestParam int offset,
             @AuthenticationPrincipal UserLogin userLogin,
@@ -105,7 +105,7 @@ public class MainPageController {
 
         log.debug("User {} is loading more matches from offset {} ({} items)",
                 userId, offset, slice.size());
-        return userService.getUserMatchedDTOs(slice, userId);
+        return userService.getMatchedUsers(slice, userId);
     }
 
     @PostMapping("/reject")
