@@ -1,4 +1,4 @@
-package com.yermaalexx.gateway.model;
+package com.yermaalexx.chatservice.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

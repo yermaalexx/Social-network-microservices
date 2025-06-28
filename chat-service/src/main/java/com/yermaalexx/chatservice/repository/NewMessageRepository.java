@@ -1,6 +1,6 @@
-package com.yermaalexx.gateway.repository;
+package com.yermaalexx.chatservice.repository;
 
-import com.yermaalexx.gateway.model.NewMessage;
+import com.yermaalexx.chatservice.model.NewMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

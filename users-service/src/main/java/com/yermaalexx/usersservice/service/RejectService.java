@@ -1,7 +1,7 @@
-package com.yermaalexx.gateway.service;
+package com.yermaalexx.usersservice.service;
 
-import com.yermaalexx.gateway.model.Reject;
-import com.yermaalexx.gateway.repository.RejectRepository;
+import com.yermaalexx.usersservice.model.Reject;
+import com.yermaalexx.usersservice.repository.RejectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,8 +16,6 @@ import java.util.UUID;
 public class RejectService {
 
     private final RejectRepository rejectRepository;
-    private final ChatService chatService;
-    private final NewMessageService newMessageService;
 
     @Transactional
     public void reject(UUID userId, UUID rejectedUserId) {
@@ -25,11 +23,6 @@ public class RejectService {
         rejectRepository.save(new Reject(null, userId, rejectedUserId));
         rejectRepository.save(new Reject(null, rejectedUserId, userId));
         log.debug("Reject records saved for both directions: {} ⇄ {}", userId, rejectedUserId);
-        chatService.deleteChat(userId, rejectedUserId);
-        log.info("Deleted chat between {} and {}", userId, rejectedUserId);
-        newMessageService.deleteNewMessage(userId, rejectedUserId);
-        newMessageService.deleteNewMessage(rejectedUserId, userId);
-        log.info("Deleted new message notifications between {} and {}", userId, rejectedUserId);
     }
 
     public List<UUID> findAllRejectedUsers(UUID userId) {
@@ -41,5 +34,4 @@ public class RejectService {
         log.info("Found {} rejected user(s) for userId={}", rejected.size(), userId);
         return rejected;
     }
-
 }

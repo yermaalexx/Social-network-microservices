@@ -3,7 +3,6 @@ package com.yermaalexx.gateway.controller;
 import com.yermaalexx.gateway.config.AppConfig;
 import com.yermaalexx.gateway.model.User;
 import com.yermaalexx.gateway.model.UserLogin;
-import com.yermaalexx.gateway.service.RejectService;
 import com.yermaalexx.gateway.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,6 @@ import java.util.UUID;
 public class MainPageController {
 
     private final UserService userService;
-    private final RejectService rejectService;
     private final AppConfig appConfig;
 
     @GetMapping
@@ -124,7 +122,7 @@ public class MainPageController {
         }
 
         log.info("User {} rejected user {}", userId, matchedId);
-        rejectService.reject(userId, matchedId);
+        userService.reject(userId, matchedId);
 
         @SuppressWarnings("unchecked")
         List<UUID> ids = (List<UUID>) session.getAttribute("matchIds");

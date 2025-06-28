@@ -1,7 +1,7 @@
-package com.yermaalexx.gateway.service;
+package com.yermaalexx.chatservice.service;
 
-import com.yermaalexx.gateway.model.NewMessage;
-import com.yermaalexx.gateway.repository.NewMessageRepository;
+import com.yermaalexx.chatservice.model.NewMessage;
+import com.yermaalexx.chatservice.repository.NewMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,19 +18,22 @@ public class NewMessageService {
 
     @Transactional
     public void deleteNewMessage(UUID userId, UUID whoSent) {
-        log.info("Deleting new message record: userId={}, whoSent={}", userId, whoSent);
+        log.debug("Deleting new message record: userId={}, whoSent={}", userId, whoSent);
         newMessageRepository.deleteByUserIdAndWhoSentMessageId(userId, whoSent);
-        log.debug("New message record deleted successfully: userId={}, whoSent={}", userId, whoSent);
+        log.info("New message record deleted successfully: userId={}, whoSent={}", userId, whoSent);
     }
 
-    public List<NewMessage> findAllByUserId(UUID userId) {
-        log.debug("Finding all new message records for userId={}", userId);
-        List<NewMessage> newMessages = newMessageRepository.findAllByUserId(userId);
-        log.info("Found {} new message record(s) for userId={}", newMessages.size(), userId);
-        return newMessages;
+    public List<UUID> findAllUsersWithNewMessagesByUserId(UUID userId) {
+        log.debug("Searching all new message records for userId={}", userId);
+        List<UUID> allUsersWithNewMessages = newMessageRepository.findAllByUserId(userId)
+                .stream()
+                .map(NewMessage::getWhoSentMessageId)
+                .toList();
+        log.info("Found {} new message record(s) for userId={}", allUsersWithNewMessages.size(), userId);
+        return allUsersWithNewMessages;
     }
 
-    public void save(UUID userId, UUID whoSent) {
+    public void saveNewMessage(UUID userId, UUID whoSent) {
         log.debug("Checking if new message record from {} to {} already exists", whoSent, userId);
         if (!newMessageRepository.existsByUserIdAndWhoSentMessageId(userId, whoSent)) {
             log.info("Saving new message notification: to userId={}, from={}", userId, whoSent);

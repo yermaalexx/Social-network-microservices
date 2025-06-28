@@ -49,6 +49,33 @@ services:
       - DB_POSTGRES_PASS=${DB_POSTGRES_PASS}
       - REDIS_HOST=redis
       - REDIS_PORT=${REDIS_PORT}
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8081"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  chat-service:
+    image: chat-service:0.0.1
+    build:
+      context: ./chat-service
+      dockerfile: Dockerfile
+    ports:
+      - 8082:8082
+    depends_on:
+      postgresql-db:
+        condition: service_healthy
+    volumes:
+      - logs:/application/logs
+    environment:
+      - spring.profiles.active=postgres
+      - DB_H2_USER=${DB_H2_USER}
+      - DB_H2_PASS=${DB_H2_PASS}
+      - DB_POSTGRES_HOST=postgresql-db
+      - DB_POSTGRES_PORT=${DB_POSTGRES_PORT}
+      - DB_POSTGRES_USER=${DB_POSTGRES_USER}
+      - DB_POSTGRES_PASS=${DB_POSTGRES_PASS}
+      - MAX_MESSAGES_IN_CHAT=${MAX_MESSAGES_IN_CHAT}
 
   gateway:
     image: gateway:0.0.1
@@ -61,13 +88,14 @@ services:
       postgresql-db:
         condition: service_healthy
       users-service:
+        condition: service_healthy
+      chat-service:
         condition: service_started
     volumes:
       - logs:/application/logs
     environment:
       - spring.profiles.active=postgres
       - CARDS_ON_PAGE=${CARDS_ON_PAGE}
-      - MAX_MESSAGES_IN_CHAT=${MAX_MESSAGES_IN_CHAT}
       - DB_H2_USER=${DB_H2_USER}
       - DB_H2_PASS=${DB_H2_PASS}
       - DB_POSTGRES_HOST=postgresql-db
@@ -76,6 +104,8 @@ services:
       - DB_POSTGRES_PASS=${DB_POSTGRES_PASS}
       - USERS_SERVICE_HOST=users-service
       - USERS_SERVICE_PORT=8081
+      - CHAT_SERVICE_HOST=chat-service
+      - CHAT_SERVICE_PORT=8082
 
 volumes:
   redis-data:

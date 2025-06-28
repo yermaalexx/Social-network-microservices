@@ -4,6 +4,7 @@ import com.yermaalexx.usersservice.dto.UserDTO;
 import com.yermaalexx.usersservice.model.User;
 import com.yermaalexx.usersservice.model.UserPhoto;
 import com.yermaalexx.usersservice.service.PhotoService;
+import com.yermaalexx.usersservice.service.RejectService;
 import com.yermaalexx.usersservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class UserController {
     private final UserService userService;
     private final PhotoService photoService;
+    private final RejectService rejectService;
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable UUID id) {
@@ -89,6 +91,21 @@ public class UserController {
         List<UUID> list = userService.findUsersSortedByInterestMatch(id);
         log.info("Found {} matches for user with id = {}", list.size(), id);
         return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/reject/{userId}")
+    public ResponseEntity<List<UUID>> getAllRejectedUsers(@PathVariable UUID userId) {
+        List<UUID> list = rejectService.findAllRejectedUsers(userId);
+        log.info("Found {} rejects for user with id = {}", list.size(), userId);
+        return ResponseEntity.ok(list);
+    }
+
+    @PostMapping("/reject/{userId}/{rejectedUserId}")
+    public ResponseEntity<Void> reject(@PathVariable UUID userId,
+                                       @PathVariable UUID rejectedUserId) {
+        log.info("User {} rejects user {}", userId, rejectedUserId);
+        rejectService.reject(userId, rejectedUserId);
+        return ResponseEntity.ok().build();
     }
 
 }

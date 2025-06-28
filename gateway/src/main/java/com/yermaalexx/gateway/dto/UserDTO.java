@@ -23,13 +23,14 @@ public class UserDTO {
     public static UserDTO from(User user) {
         if (user == null)
             return null;
+        byte[] userPhoto = (user.getPhotoBase64() == null) ? null : Base64.getDecoder().decode(user.getPhotoBase64());
         return new UserDTO(
                 user.getId(),
                 user.getName(),
                 user.getBirthYear(),
                 user.getLocation(),
                 user.getRegistrationDate(),
-                Base64.getDecoder().decode(user.getPhotoBase64()),
+                userPhoto,
                 user.getMatchingInterests());
     }
 }

@@ -1,6 +1,5 @@
 app:
   cards-on-page: ${CARDS_ON_PAGE:2}
-  max-messages-in-chat: ${MAX_MESSAGES_IN_CHAT:20}
 
 server:
   port: 8080
@@ -24,6 +23,8 @@ spring:
           instances:
             users-service:
               - uri: http://${USERS_SERVICE_HOST:localhost}:${USERS_SERVICE_PORT:8081}
+            chat-service:
+              - uri: http://${CHAT_SERVICE_HOST:localhost}:${CHAT_SERVICE_PORT:8082}
     loadbalancer:
       ribbon:
         enabled: false

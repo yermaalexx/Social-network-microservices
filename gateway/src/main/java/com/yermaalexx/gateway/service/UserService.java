@@ -2,7 +2,6 @@ package com.yermaalexx.gateway.service;
 
 import com.yermaalexx.gateway.dto.UserDTO;
 import com.yermaalexx.gateway.feignclient.UserClient;
-import com.yermaalexx.gateway.model.NewMessage;
 import com.yermaalexx.gateway.model.User;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +20,7 @@ import java.util.UUID;
 public class UserService {
 
     private final UserLoginService userLoginService;
-    private final RejectService rejectService;
-    private final NewMessageService newMessageService;
+    private final ChatService chatService;
     private final UserClient userClient;
 
     @Transactional
@@ -75,13 +73,10 @@ public class UserService {
     public List<UUID>[] getUsersSortedByInterestMatch(UUID userId) {
         log.info("Getting sorted user matches for userId={}", userId);
 
-        List<UUID> rejectedUsers = rejectService.findAllRejectedUsers(userId);
+        List<UUID> rejectedUsers = userClient.getAllRejectedUsers(userId);
         log.debug("{} rejected users for userId={}", rejectedUsers.size(), userId);
 
-        List<UUID> usersWithNewMessages = newMessageService.findAllByUserId(userId)
-                .stream()
-                .map(NewMessage::getWhoSentMessageId)
-                .toList();
+        List<UUID> usersWithNewMessages = chatService.findNewMessageRecordsByUserId(userId);
         log.debug("{} users with new messages for userId={}", usersWithNewMessages.size(), userId);
 
         List<UUID> usersSortedByInterestMatch = userClient.getUsersSortedByInterestMatch(userId)
@@ -123,6 +118,18 @@ public class UserService {
         UserDTO dto = userClient.getUserById(userId);
 
         return User.from(dto, null, null);
+    }
+
+    public void reject(UUID userId, UUID rejectedUserId) {
+        log.info("UserId={} rejects rejectedUserId={}", userId, rejectedUserId);
+        userClient.reject(userId, rejectedUserId);
+
+        chatService.deleteChat(userId, rejectedUserId);
+        log.info("Deleted chat between {} and {}", userId, rejectedUserId);
+
+        chatService.deleteNewMessageRecord(userId, rejectedUserId);
+        chatService.deleteNewMessageRecord(rejectedUserId, userId);
+        log.info("Deleted new message notifications between {} and {}", userId, rejectedUserId);
     }
 
 }

@@ -1,11 +1,9 @@
 package com.yermaalexx.gateway.controller;
 
-import com.yermaalexx.gateway.model.Chat;
-import com.yermaalexx.gateway.model.Message;
+import com.yermaalexx.gateway.dto.MessageDTO;
 import com.yermaalexx.gateway.model.User;
 import com.yermaalexx.gateway.model.UserLogin;
 import com.yermaalexx.gateway.service.ChatService;
-import com.yermaalexx.gateway.service.NewMessageService;
 import com.yermaalexx.gateway.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/chat")
@@ -27,7 +28,6 @@ import java.util.*;
 public class ChatController {
     private final UserService userService;
     private final ChatService chatService;
-    private final NewMessageService newMessageService;
 
     @GetMapping
     public String showChat(
@@ -57,16 +57,14 @@ public class ChatController {
         model.addAttribute("other", other);
         model.addAttribute("year", Calendar.getInstance().get(Calendar.YEAR));
 
-        Chat chat = chatService.getChat(userId, otherId);
-        List<Message> messages = chat.getMessages();
+        List<MessageDTO> messages = chatService.getChat(userId, otherId);
         Collections.reverse(messages);
 
-        log.debug("Loaded {} messages in chat {} between {} and {}", messages.size(), chat.getId(), userId, otherId);
+        log.debug("Loaded {} messages in chat between {} and {}", messages.size(), userId, otherId);
 
-        model.addAttribute("chatId", chat.getId());
         model.addAttribute("messages", messages);
 
-        newMessageService.deleteNewMessage(userId,otherId);
+        chatService.deleteNewMessageRecord(userId,otherId);
         log.info("Marked messages as read from {} to {}", otherId, userId);
 
         return "chat";
@@ -74,15 +72,14 @@ public class ChatController {
 
     @PostMapping("/send")
     public String sendMessage(
-            @RequestParam UUID chatId,
             @RequestParam UUID userId,
             @RequestParam UUID otherId,
             @RequestParam String content
     ) {
 
-        chatService.sendMessage(chatId, userId, otherId, content);
-        log.info("User {} sending message to {} in chat {}",
-                userId, otherId, chatId);
+        chatService.sendMessage(userId, otherId, content);
+        log.info("User {} sending message to {} in chat",
+                userId, otherId);
 
         return String.format("redirect:/chat?userId=%s&otherId=%s",userId,otherId);
     }

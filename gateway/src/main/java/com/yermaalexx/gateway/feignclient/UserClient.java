@@ -28,4 +28,10 @@ public interface UserClient {
     @GetMapping("/users/{id}/matches")
     List<UUID> getUsersSortedByInterestMatch(@PathVariable UUID id);
 
+    @GetMapping("/users/reject/{userId}")
+    List<UUID> getAllRejectedUsers(@PathVariable UUID userId);
+
+    @PostMapping("/users/reject/{userId}/{rejectedUserId}")
+    void reject(@PathVariable UUID userId, @PathVariable UUID rejectedUserId);
+
 }

@@ -1,63 +1,51 @@
 package com.yermaalexx.gateway.service;
 
-import com.yermaalexx.gateway.config.AppConfig;
-import com.yermaalexx.gateway.model.Chat;
-import com.yermaalexx.gateway.model.Message;
-import com.yermaalexx.gateway.repository.ChatRepository;
+import com.yermaalexx.gateway.dto.MessageDTO;
+import com.yermaalexx.gateway.feignclient.ChatClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ChatService {
-    private final ChatRepository chatRepository;
-    private final NewMessageService newMessageService;
-    private final AppConfig appConfig;
+    private final ChatClient chatClient;
 
-    public Chat getChat(UUID userA, UUID userB) {
-        UUID a = userA.compareTo(userB)<0 ? userA : userB;
-        UUID b = userA.compareTo(userB)<0 ? userB : userA;
-        log.debug("getChat called with userA={}, userB={}", userA, userB);
-        return chatRepository.findByUserAAndUserB(a, b)
-                .orElseGet(() -> {
-                    log.info("No existing chat found between {} and {}. Creating new chat.", a, b);
-                    Chat c = new Chat();
-                    c.setUserA(a);
-                    c.setUserB(b);
-                    Chat saved = chatRepository.save(c);
-                    log.info("New chat created with id={} between {} and {}", saved.getId(), a, b);
-                    return saved;
-                });
+    public List<MessageDTO> getChat(UUID userA, UUID userB) {
+        log.debug("getAllMessages called with userA={}, userB={}", userA, userB);
+        return chatClient.getAllMessages(userA, userB);
     }
 
     @Transactional
     public void deleteChat(UUID userA, UUID userB) {
-        UUID a = userA.compareTo(userB)<0 ? userA : userB;
-        UUID b = userA.compareTo(userB)<0 ? userB : userA;
-        log.info("Deleting chat between userA={} and userB={}", a, b);
-        chatRepository.deleteByUserAAndUserB(a, b);
-        log.info("Chat successfully deleted between {} and {}", a, b);
+        log.info("Deleting chat between userA={} and userB={}", userA, userB);
+        chatClient.deleteAllMessages(userA, userB);
+        log.info("Chat successfully deleted between {} and {}", userA, userB);
 
     }
 
     @Transactional
-    public void sendMessage(UUID chatId, UUID senderId, UUID otherId, String content) {
-        log.debug("sendMessage called: chatId={}, senderId={}, receiverId={}", chatId, senderId, otherId);
-        Chat chat = chatRepository.getChatById(chatId);
-        Message msg = new Message();
-        msg.setSenderId(senderId);
-        msg.setContent(content);
-        log.debug("Appending new message to chat. Chat id: {}", chatId);
-        chat.addMessage(msg, appConfig.getMaxMessagesInChat());
-        chatRepository.save(chat);
-        log.info("Message from {} to {} saved in chat {}", senderId, otherId, chatId);
-        newMessageService.save(otherId, senderId);
-        log.info("New message notification saved for user {} from {}", otherId, senderId);
+    public void sendMessage(UUID senderId, UUID receiverId, String content) {
+        log.debug("sendMessage called: senderId={}, receiverId={}", senderId, receiverId);
+        MessageDTO message = new MessageDTO(null, senderId, receiverId, content, LocalDateTime.now(), null);
+        chatClient.sendMessage(message);
+        log.info("Message from {} to {} saved", senderId, receiverId);
+    }
+
+    public void deleteNewMessageRecord(UUID userId, UUID whoSent) {
+        log.info("Delete NewMessage record from {} to {}", whoSent, userId);
+        chatClient.deleteNewMessageRecord(userId, whoSent);
+    }
+
+    public List<UUID> findNewMessageRecordsByUserId(UUID userId) {
+        log.info("Find all NewMessage records for userId={}", userId);
+        return chatClient.findNewMessageRecordsByUserId(userId);
     }
 
 }

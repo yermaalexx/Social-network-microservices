@@ -17,6 +17,7 @@
   <modules>
     <module>gateway</module>
     <module>users-service</module>
+    <module>chat-service</module>
   </modules>
   
 </project>
